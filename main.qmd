@@ -3,28 +3,33 @@ jupyter: python3
 ---
 
 ```{python}
+%load_ext autoreload
+%autoreload 2
+```
+
+```{python}
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 ```
 
 ```{python}
-with open("secrets.txt", "r") as f:
-    cid = f.readline().strip()
-    secret = f.readline().strip()
-
-client_credentials_manager = SpotifyClientCredentials(client_id=cid, client_secret=secret)
-sp = spotipy.Spotify(client_credentials_manager = client_credentials_manager)
+import data_collector
+data_collector.login()
 ```
 
 ```{python}
-
-playlist_link = "https://open.spotify.com/playlist/5hjQvFJm35qV8SiRoGlTxe?si=6244921356164f99"
-playlist_URI = playlist_link.split("/")[-1].split("?")[0]
-
-track_names = [x["track"]["name"] for x in sp.playlist_tracks(playlist_URI)["items"]]
+mitksi_all = data_collector.get_all_playlists("mitski.txt")
+phoebe_all = data_collector.get_all_playlists("phoebe.txt")
 ```
 
 ```{python}
-track_names
+import pandas as pd
+
+mitski_df = pd.DataFrame(mitksi_all)
+phoebe_df = pd.DataFrame(phoebe_all)
+```
+
+```{python}
+mitski_df
 ```
 
