@@ -18,18 +18,26 @@ data_collector.login()
 ```
 
 ```{python}
-mitksi_all = data_collector.get_all_playlists("mitski.txt")
+mitski_all = data_collector.get_all_playlists("mitski.txt")
 phoebe_all = data_collector.get_all_playlists("phoebe.txt")
 ```
 
 ```{python}
 import pandas as pd
 
-mitski_df = pd.DataFrame(mitksi_all)
+mitski_df = pd.DataFrame(mitski_all)
 phoebe_df = pd.DataFrame(phoebe_all)
 ```
 
 ```{python}
-mitski_df
+from data_helpers import get_avg_ranking
+import matplotlib.pyplot as plt
+
+mitski_rank = get_avg_ranking(mitski_df)
+
+percents = [*mitski_rank.values()]
+
+
 ```
+
 
