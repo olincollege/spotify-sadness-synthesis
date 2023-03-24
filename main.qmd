@@ -30,12 +30,24 @@ phoebe_df = pd.DataFrame(phoebe_all)
 ```
 
 ```{python}
-from data_helpers import get_avg_ranking
+from data_helpers import *
 import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.patches import Polygon
+from annotations import *
 
-mitski_rank = get_avg_ranking(mitski_df)
+phoebe_rank = get_avg_ranking(phoebe_df)
 
-percents = [*mitski_rank.values()]
+percents = [*phoebe_rank.values()]
+titles = [*phoebe_rank.keys()]
+print(phoebe_rank)
+
+songs_percentile(phoebe_rank)
+
+make_boxplot()
+```
+
+```{python}
 
 
 ```
