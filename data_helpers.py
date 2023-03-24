@@ -45,3 +45,16 @@ def get_avg_ranking(df):
 
     avg_percent = find_avg_percent(percent_dict)
     return avg_percent
+
+
+def get_all_ranking(df):
+    percent_dict = {}
+    for row in df:
+        playlist = make_row_list(row, df)
+        for i in playlist:
+            percent_dict = find_percentile(i, playlist, percent_dict)
+
+        if row == (len(df) - 1):
+            break
+
+    return percent_dict
