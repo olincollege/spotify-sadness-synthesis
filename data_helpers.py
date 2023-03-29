@@ -58,3 +58,11 @@ def get_all_ranking(df):
             break
 
     return percent_dict
+
+
+def remove_songs(dictionary, num):
+    removed_dict = {}
+    for i in dictionary:
+        if len(dictionary[i]) >= num:
+            removed_dict[i] = dictionary[i]
+    return removed_dict
