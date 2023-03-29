@@ -118,12 +118,13 @@ def find_anomalies(playlists, forward_i, backward_i):
     df = pd.DataFrame(playlists)
 
     forward_series = pd.Series(
-        range(len(df.loc[0])), index=df.loc[forward_i].values.flatten().tolist()
+        range(len(df.loc[forward_i])), index=df.loc[forward_i].values.flatten().tolist()
     )
     forward_rank = pd.DataFrame(forward_series.rank(), columns=["for_rank"])
 
     backward_series = pd.Series(
-        range(len(df.loc[2])), index=df.loc[backward_i].values.flatten().tolist()
+        range(len(df.loc[backward_i])),
+        index=df.loc[backward_i].values.flatten().tolist(),
     )
     backward_rank = pd.DataFrame(backward_series.rank(), columns=["back_rank"])
 
@@ -145,7 +146,8 @@ def find_anomalies(playlists, forward_i, backward_i):
             list(merged[merged.index.notnull()]["back_rank"]),
             list(merged[merged.index.notnull()]["curr_rank"]),
         )
-        if abs(rho) + abs(rho_back) < 0.5:
+        
+        if abs(rho) + abs(rho_back) < 0.3:
             ambiguous_indexes.append(row[0])
         elif rho < 0 and rho_back > 0:
             reversed_indexes.append(row[0])

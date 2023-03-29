@@ -22,6 +22,16 @@ mitski_all = data_collector.get_all_playlists("mitski.txt")
 phoebe_all = data_collector.get_all_playlists("phoebe.txt")
 ```
 
+
+```{python}
+mitski_temp = mitski_all
+phoebe_temp = phoebe_all
+```
+
+```{python}
+mitski_all = mitski_temp
+```
+
 ```{python}
 import data_helpers
 ambiguous_indexes, reversed_indexes = data_helpers.find_anomalies(mitski_all, 0, 2)
@@ -39,6 +49,26 @@ for idx, element in enumerate(ambiguous_indexes):
 
 mitski_df = pd.DataFrame(mitski_all)
 mitski_df
+```
+
+```{python}
+ambiguous_indexes, reversed_indexes = data_helpers.find_anomalies(phoebe_all, 6, 2)
+print(ambiguous_indexes)
+print(reversed_indexes)
+```
+
+```{python}
+import pandas as pd
+phoebe_df = pd.DataFrame(mitski_all)
+
+for i in reversed_indexes:
+    phoebe_all[i] = list(reversed(phoebe_df.loc[i].dropna()))
+
+for idx, element in enumerate(ambiguous_indexes):
+    phoebe_all.pop(element- idx) # bcs indexes get moved when something is popped
+
+phoebe_df = pd.DataFrame(phoebe_all)
+phoebe_df
 ```
 
 ```{python}
