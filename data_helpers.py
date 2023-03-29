@@ -1,3 +1,6 @@
+import numpy as np
+
+
 def get_ranking(song, playlist):
     "takes a row(playlist) from the df and finds the ranking of a song, starting at 1, not 0"
 
@@ -33,7 +36,7 @@ def find_avg_percent(dictionary):
     return dictionary
 
 
-def get_all_ranking(df):
+def get_all_ranking(df, num=5):
     percent_dict = {}
     for row in df:
         playlist = make_row_list(row, df)
@@ -42,11 +45,12 @@ def get_all_ranking(df):
 
         if row == (len(df) - 1):
             break
+    percent_dict = remove_songs(percent_dict, num)
 
     return percent_dict
 
 
-def remove_songs(dictionary, num):
+def remove_songs(dictionary, num=5):
     removed_dict = {}
     for i in dictionary:
         if len(dictionary[i]) >= num:
@@ -57,9 +61,47 @@ def remove_songs(dictionary, num):
 def get_avg_ranking(df):
 
     percent_dict = get_all_ranking(df)
-    # percent_dict = remove_songs(percent_dict, 5) - add once function is made
+    percent_dict = remove_songs(percent_dict, 5)
     avg_percent = find_avg_percent(percent_dict)
     return avg_percent
+
+
+def find_most_controversial(dictionary, num):
+    maxes = {}
+    stds_dict = find_std_of_songs(dictionary)
+
+    for i in range(0, num):
+        max1 = 0
+
+        maxes[max(stds_dict, key=stds_dict.get)] = stds_dict[
+            max(stds_dict, key=stds_dict.get)
+        ]
+
+        del stds_dict[max(stds_dict, key=stds_dict.get)]
+    return maxes
+
+
+def find_least_controversial(dictionary, num):
+    mins = {}
+    stds_dict = find_std_of_songs(dictionary)
+
+    for i in range(0, num):
+        max1 = 0
+
+        mins[min(stds_dict, key=stds_dict.get)] = stds_dict[
+            min(stds_dict, key=stds_dict.get)
+        ]
+
+        del stds_dict[min(stds_dict, key=stds_dict.get)]
+    return mins
+
+
+def find_std_of_songs(dictionary):
+    stds = {}
+    for i in dictionary:
+        stds[i] = np.std(dictionary[i])
+
+    return stds
 
 
 # def get_one_album(album, df):
