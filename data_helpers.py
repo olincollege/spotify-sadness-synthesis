@@ -109,3 +109,45 @@ def find_std_of_songs(dictionary):
 #     for i in df:
 
 #     return
+
+
+def find_anomalies(playlists, forward_i, backward_i):
+    from scipy import stats
+    import pandas as pd
+
+    df = pd.DataFrame(playlists)
+
+    forward_series = pd.Series(
+        range(len(df.loc[0])), index=df.loc[forward_i].values.flatten().tolist()
+    )
+    forward_rank = pd.DataFrame(forward_series.rank(), columns=["for_rank"])
+
+    backward_series = pd.Series(
+        range(len(df.loc[2])), index=df.loc[backward_i].values.flatten().tolist()
+    )
+    backward_rank = pd.DataFrame(backward_series.rank(), columns=["back_rank"])
+
+    ambiguous_indexes = []
+    reversed_indexes = []
+
+    rows = df.iterrows()
+    for row in rows:
+        playlist_series = pd.Series(range(len(row[1])), index=row[1])
+        playlist_rank = pd.DataFrame(playlist_series.rank(), columns=["curr_rank"])
+
+        merged = forward_rank.join(playlist_rank).join(backward_rank)
+        merged = merged.dropna()
+        rho, p = stats.spearmanr(
+            list(merged[merged.index.notnull()]["for_rank"]),
+            list(merged[merged.index.notnull()]["curr_rank"]),
+        )
+        rho_back, p = stats.spearmanr(
+            list(merged[merged.index.notnull()]["back_rank"]),
+            list(merged[merged.index.notnull()]["curr_rank"]),
+        )
+        if abs(rho) + abs(rho_back) < 0.5:
+            ambiguous_indexes.append(row[0])
+        elif rho < 0 and rho_back > 0:
+            reversed_indexes.append(row[0])
+
+    return ambiguous_indexes, reversed_indexes

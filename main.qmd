@@ -23,10 +23,22 @@ phoebe_all = data_collector.get_all_playlists("phoebe.txt")
 ```
 
 ```{python}
+import data_helpers
+ambiguous_indexes, reversed_indexes = data_helpers.find_anomalies(mitski_all, 0, 2)
+```
+
+```{python}
 import pandas as pd
+mitski_df = pd.DataFrame(mitski_all)
+
+for i in reversed_indexes:
+    mitski_all[i] = list(reversed(mitski_df.loc[i].dropna()))
+
+for idx, element in enumerate(ambiguous_indexes):
+    mitski_all.pop(element- idx) # bcs indexes get moved when something is popped
 
 mitski_df = pd.DataFrame(mitski_all)
-phoebe_df = pd.DataFrame(phoebe_all)
+mitski_df
 ```
 
 ```{python}
@@ -46,10 +58,4 @@ songs_percentile(phoebe_rank)
 
 make_boxplot()
 ```
-
-```{python}
-
-
-```
-
 
