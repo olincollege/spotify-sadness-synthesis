@@ -35,8 +35,8 @@ def graph_songs_percentile(rank, graph_title, song_length=20, x=30, y=15):
 
     # separate dictionary into x value and lables
     percentile = [*rank.values()]
-    names = shorten_names_for_display([*rank.keys()], song_length)
-
+    names = [*rank.keys()]
+    short_names = shorten_names_for_display(names, song_length)
     levels = make_levels(names)
 
     # Create figure and plot a stem plot with the date
@@ -47,9 +47,11 @@ def graph_songs_percentile(rank, graph_title, song_length=20, x=30, y=15):
     ax.plot(
         percentile, np.zeros_like(percentile), "-o", color="k", markerfacecolor="w"
     )  # Baseline and markers on it.
+    colors = create_box_colors(names)
 
+    i = 0
     # annotate lines
-    for d, l, r in zip(percentile, levels, names):
+    for d, l, r in zip(percentile, levels, short_names):
         ax.annotate(
             r,
             xy=(d, l),
@@ -58,7 +60,9 @@ def graph_songs_percentile(rank, graph_title, song_length=20, x=30, y=15):
             horizontalalignment="right",
             verticalalignment="bottom" if l > 0 else "top",
             fontsize=12,
+            bbox=dict(boxstyle="round,pad=0.2", fc=colors[i], alpha=0.5),
         )
+        i += 1
 
     plt.setp(ax.get_xticklabels(), rotation=30, fontsize=15, ha="right")
 
@@ -77,7 +81,7 @@ def make_boxplot_songs(
 ):
     # rank is dictionary with just the songs to rank
     "This is a whole mess, i need to edit it to take a dictionary as a parameter - Kelsey"
-    Names = [*rank.keys()]
+    names = [*rank.keys()]
     percentile = [*rank.values()]
 
     data = percentile
@@ -100,7 +104,7 @@ def make_boxplot_songs(
     )
 
     # Now fill the boxes with desired colors
-    box_colors = ["darkolivegreen"] * len(data)  # Change to = create_box_colors()
+    box_colors = create_box_colors(names)
     num_boxes = len(data)
     medians = np.empty(num_boxes)
     for i in range(num_boxes):
@@ -124,6 +128,7 @@ def make_boxplot_songs(
         medians[i] = median_y[0]
         # Finally, overplot the sample averages, with horizontal alignment
         # in the center of each box
+
         ax1.plot(
             np.average(med.get_xdata()),
             np.average(data[i]),
@@ -137,7 +142,7 @@ def make_boxplot_songs(
     top = 1
     bottom = 0
     ax1.set_ylim(bottom, top)
-    ax1.set_xticklabels(np.repeat(Names, 1), rotation=90, fontsize=8)
+    ax1.set_xticklabels(np.repeat(names, 1), rotation=90, fontsize=8)
 
     # Due to the Y-axis scale being different across samples, it can be
     # hard to compare differences in medians across the samples. Add upper
@@ -162,9 +167,34 @@ def make_boxplot_songs(
     plt.show()
 
 
-# def create_box_colors(data):
-#     for i in data:
-#         if i in
+from data_collector import *
+
+
+def create_box_colors(data):
+    colors = []
+    lh, btc, p2, bmamc, rfsncib, lush, sita, punisher, boygenius = get_all_albums()
+    for i in data:
+        if i in lh:
+            colors.append("darkred")
+        elif i in btc:
+            colors.append("silver")
+        elif i in p2:
+            colors.append("yellowgreen")
+        elif i in bmamc:
+            colors.append("slategrey")
+        elif i in rfsncib:
+            colors.append("teal")
+        elif i in lush:
+            colors.append("darkolivegreen")
+        elif i in sita:
+            colors.append("paleturquoise")
+        elif i in punisher:
+            colors.append("mediumblue")
+        elif i in boygenius:
+            colors.append("dimgrey")
+        else:
+            colors.append("gold")
+    return colors
 
 
 # LEGEND EXAMPLE CODE
