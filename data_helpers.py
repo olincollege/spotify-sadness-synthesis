@@ -1,19 +1,25 @@
+"""
+Collection of functions to process playlist data.
+"""
+
 import numpy as np
 from scipy import stats
 import pandas as pd
 
 
-def make_row_list(row, df):
+def make_row_list(row, data):
     """
     converts a row of a data frame into a list
 
-    Args: row: an int, representing the row of the data fram to be
-    converted to a list. df: the data frame containing the row to be
-    converted
+    Args:
+        row: an int, representing the row of the data frame to be
+        converted to a list.
+        data: the data frame containing the row to be
+        converted
 
     Returns: row_list, the row of the data frame as a list
     """
-    row_list = df.loc[row, :].values.flatten().tolist()
+    row_list = data.loc[row, :].values.flatten().tolist()
     return row_list
 
 
@@ -45,11 +51,11 @@ def find_percentile(song, playlist, dictionary):
     rank = playlist.index(song) + 1
     length = len(playlist)
     percentile = rank / length
-    if song not in dictionary and song != None and song != "":
+    if song not in dictionary and song not in (None, ""):
         dictionary[song] = []
         dictionary[song].append(percentile)
 
-    elif song != None and song != "":
+    elif song is not None and song != "":
         dictionary[song].append(percentile)
     return dictionary
 
@@ -69,15 +75,15 @@ def find_avg_percent(dictionary):
     percentile
     """
     for i in dictionary:
-        all = sum(dictionary[i])
+        total = sum(dictionary[i])
         length = len(dictionary[i])
-        average = all / length
+        average = total / length
         dictionary[i] = average
 
     return dictionary
 
 
-def get_all_ranking(df, cutoff=5):
+def get_all_ranking(data, cutoff=5):
     """
     Gets the ranking in percentiles of every song in every playlist
 
@@ -86,7 +92,7 @@ def get_all_ranking(df, cutoff=5):
     of each song on that list, then removes songs that appear in
     less playlists than the cutoff number, cutoff
 
-    Args: df, a dataframe, each row representing a playlist with
+    Args: data, a dataframe, each row representing a playlist with
     songs in ranked order. cutoff: an int, representing the value to be
     passed to the remove_songs function, aka the cut off number of
     times a song appears in playlists in order to not be removed
@@ -97,12 +103,12 @@ def get_all_ranking(df, cutoff=5):
 
     """
     percent_dict = {}
-    for row in df:
-        playlist = make_row_list(row, df)
+    for row in data:
+        playlist = make_row_list(row, data)
         for i in playlist:
             percent_dict = find_percentile(i, playlist, percent_dict)
 
-        if row == (len(df) - 1):
+        if row == (len(data) - 1):
             break
     percent_dict = remove_songs(percent_dict, cutoff)
 
@@ -129,7 +135,7 @@ def remove_songs(dictionary, cutoff=5):
     return removed_dict
 
 
-def get_avg_ranking(df, cutoff):
+def get_avg_ranking(data, cutoff):
     """
     Gets the average rank percentile of each song across each playlist
 
@@ -139,7 +145,7 @@ def get_avg_ranking(df, cutoff):
     avg_percentage to create dictionary with song title keys and avg
     percentile values.
 
-    Args: df, a datafram of songs, where each row represents a playlist
+    Args: data, a dataframe of songs, where each row represents a playlist
     in order. cutoff, an int representing the cut off number of
     times a song appears in playlists in order to not be removed
     from the dictionary
@@ -148,7 +154,7 @@ def get_avg_ranking(df, cutoff):
     percentile values
     """
 
-    percent_dict = get_all_ranking(df)
+    percent_dict = get_all_ranking(data)
     percent_dict = remove_songs(percent_dict, cutoff)
     avg_percent = find_avg_percent(percent_dict)
     return avg_percent
@@ -178,9 +184,7 @@ def find_most_controversial(dictionary, num):
     maxes = {}
     stds_dict = find_std_of_songs(dictionary)
 
-    for i in range(0, num):
-        max1 = 0
-
+    for _ in range(0, num):
         maxes[max(stds_dict, key=stds_dict.get)] = stds_dict[
             max(stds_dict, key=stds_dict.get)
         ]
@@ -212,9 +216,7 @@ def find_least_controversial(dictionary, num):
     mins = {}
     stds_dict = find_std_of_songs(dictionary)
 
-    for i in range(0, num):
-        max1 = 0
-
+    for _ in range(0, num):
         mins[min(stds_dict, key=stds_dict.get)] = stds_dict[
             min(stds_dict, key=stds_dict.get)
         ]
@@ -277,49 +279,52 @@ def find_anomalies(playlists, forward_i, backward_i, threshold=0.5):
 
     Args:
         playlists: a 2d list of songs, with each inner list being a playlist.
-        forward_i: number representing index of a playlist to be used as a model normal order playlist.
-        backward_i: number representing index of a playlist to be used as a model reverse order playlist.
+        forward_i: number representing index of a playlist to be used as a model normal order
+        playlist.
+        backward_i: number representing index of a playlist to be used as a model reverse order
+        playlist.
 
     Returns:
         A list of numbers representing the indexes of the playlists that are in ambigious order,
         and a list of numbers representing the indexes of the playlists that are reversed.
     """
 
-    df = pd.DataFrame(playlists)
+    data = pd.DataFrame(playlists)
 
     forward_series = pd.Series(
-        range(len(df.loc[forward_i])), index=df.loc[forward_i].values.flatten().tolist()
+        range(len(data.loc[forward_i])),
+        index=data.loc[forward_i].values.flatten().tolist(),
     )
     forward_rank = pd.DataFrame(forward_series.rank(), columns=["for_rank"])
 
     backward_series = pd.Series(
-        range(len(df.loc[backward_i])),
-        index=df.loc[backward_i].values.flatten().tolist(),
+        range(len(data.loc[backward_i])),
+        index=data.loc[backward_i].values.flatten().tolist(),
     )
     backward_rank = pd.DataFrame(backward_series.rank(), columns=["back_rank"])
 
     ambiguous_indexes = []
     reversed_indexes = []
 
-    rows = df.iterrows()
+    rows = data.iterrows()
     for row in rows:
         playlist_series = pd.Series(range(len(row[1])), index=row[1])
         playlist_rank = pd.DataFrame(playlist_series.rank(), columns=["curr_rank"])
 
         merged = forward_rank.join(playlist_rank).join(backward_rank)
         merged = merged.dropna()
-        rho, p = stats.spearmanr(
+        rho, _ = stats.spearmanr(
             list(merged[merged.index.notnull()]["for_rank"]),
             list(merged[merged.index.notnull()]["curr_rank"]),
         )
-        rho_back, p = stats.spearmanr(
+        rho_back, _ = stats.spearmanr(
             list(merged[merged.index.notnull()]["back_rank"]),
             list(merged[merged.index.notnull()]["curr_rank"]),
         )
 
         if abs(rho) + abs(rho_back) < threshold:
             ambiguous_indexes.append(row[0])
-        elif rho < 0 and rho_back > 0:
+        elif rho_back > 0 > rho:
             reversed_indexes.append(row[0])
 
     return ambiguous_indexes, reversed_indexes
@@ -336,7 +341,7 @@ def reverse_rows(playlists, indexes):
     Returns:
         the modified playlist list
     """
-    df = pd.DataFrame(playlists)
+    data = pd.DataFrame(playlists)
     for i in indexes:
-        playlists[i] = list(reversed(df.loc[i].dropna()))
+        playlists[i] = list(reversed(data.loc[i].dropna()))
     return playlists

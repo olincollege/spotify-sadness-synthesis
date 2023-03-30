@@ -4,52 +4,79 @@ Spotify api functions to get necessary data.
 from spotipy.oauth2 import SpotifyClientCredentials
 import spotipy
 
+SPOTIFY = None
+
 
 def login():
     """
-    Sets up spotify api access.
+    Connects to the spotify API with stored credentials.
     """
 
-    with open("secrets.txt", "r") as f:
-        cid = f.readline().strip()
-        secret = f.readline().strip()
+    with open("secrets.txt", "r", encoding="UTF-8") as file:
+        cid = file.readline().strip()
+        secret = file.readline().strip()
 
     client_credentials_manager = SpotifyClientCredentials(
         client_id=cid, client_secret=secret
     )
-    global sp
-    sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
+    global SPOTIFY
+    SPOTIFY = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
 
 def get_tracks(url):
     """
-    get tracks
+    Gets the song names in a playlist.
+
+    args:
+        url: a string representing the spotify playlist url
+    returns: a list of strings representing the song names, in order.
     """
 
-    playlist_URI = url.split("/")[-1].split("?")[0]
+    playlist_uri = url.split("/")[-1].split("?")[0]
 
     return [
-        track["track"]["name"] for track in sp.playlist_tracks(playlist_URI)["items"]
+        track["track"]["name"]
+        for track in SPOTIFY.playlist_tracks(playlist_uri)["items"]
     ]
 
 
 def get_all_playlists(path):
     """
-    gets tracks in all playlists
+    Gets the songs for all the playlist urls in a text file.
+
+    Args:
+        path: a string representing the path to the text file.
+
+    Returns: a 2d list of strings representing song names, with each inner
+    list being a playlist
     """
-    with open(path, "r") as f:
-        playlists = [get_tracks(url.strip()) for url in f]
+    with open(path, "r", encoding="UTF-8") as file:
+        playlists = [get_tracks(url.strip()) for url in file]
 
     return playlists
 
 
 def get_albums(url):
+    """
+    Gets the songs in a given album on spotify.
 
-    data = sp.album_tracks(url)
+    Args:
+        url: a string representing the url of the album on spotify.
+
+    Returns: a list of strings representing song names.
+    """
+
+    data = SPOTIFY.album_tracks(url)
     return [track["name"] for track in data["items"]]
 
 
 def get_all_albums():
+    """
+    Gets all the songs in the most popular albums.
+
+    Returns: a 2d list of strings representing song names, with each inner
+    list being an album
+    """
     laurel_hell = get_albums(
         "https://open.spotify.com/album/4rcinMUHEWOxpIwJo2sf22?si=JDKtk3IFSACxhVdO5b3U_g"
     )
