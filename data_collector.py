@@ -74,6 +74,9 @@ def get_all_albums():
     punisher = get_albums(
         "https://open.spotify.com/album/6Pp6qGEywDdofgFC1oFbSH?si=nzWaWIYkS2uW2IDxETQhow"
     )
+    boygenius = get_albums(
+        "https://open.spotify.com/album/6RjlLIuDFC8Dw91yRAdPz9?si=yvACGcZaSU-fusdU5U-tsQ"
+    )
     return [
         laurel_hell,
         be_the_cowboy,
@@ -83,4 +86,5 @@ def get_all_albums():
         lush,
         stranger_in_the_alps,
         punisher,
+        boygenius,
     ]
