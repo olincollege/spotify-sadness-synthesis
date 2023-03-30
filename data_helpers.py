@@ -10,11 +10,43 @@ def get_ranking(song, playlist):
 
 
 def make_row_list(row, df):
+    """
+    converts a row of a data frame into a list
+
+    Args: row: an int, representing the row of the data fram to be
+    converted to a list. df: the data frame containing the row to be
+    converted
+
+    Returns: row_list, the row of the data frame as a list
+    """
     row_list = df.loc[row, :].values.flatten().tolist()
     return row_list
 
 
 def find_percentile(song, playlist, dictionary):
+    """
+    Finds the percentile rank of a song in a single playlist
+
+    Args: song: a string representing the exact song title.
+    playlist: a list of the song titles in the order that the spotify
+    user ranked them. dicionary: a dictionary containing the percentiles
+    of songs in playlists that have already been found using this
+    function. The song titles are keys and the values are lists of
+    percentiles. This function will add the new percentile found to list of
+    the correct song in the dictionary.
+
+    Return: dictionary, the same dictionary as the argument dictionary,
+    but with the percentile of song added to the list of percentiles for
+    that song. If that song did not already exist in the dictionary, it
+    is added, and the list for the value is created with the percentile
+    as the first item
+
+    Notes: This function is made to be used within the get_all_ranking
+    function which iterates through every song in every row to call this
+    function in order to find the percentile of a songs ranking in every
+    playlist it appears in.
+
+    """
 
     rank = playlist.index(song) + 1
     length = len(playlist)
@@ -104,6 +136,15 @@ def find_std_of_songs(dictionary):
         stds[i] = np.std(dictionary[i])
 
     return stds
+
+
+def make_dict_one_album(album, all_songs):
+    album_dict = {}
+    for i in all_songs:
+        if i in album:
+            album_dict[i] = all_songs[i]
+
+    return album_dict
 
 
 # def get_one_album(album, df):

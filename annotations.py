@@ -35,8 +35,8 @@ def graph_songs_percentile(rank, graph_title, song_length=20, x=30, y=15):
 
     # separate dictionary into x value and lables
     percentile = [*rank.values()]
-    names = shorten_names_for_display([*rank.keys()], song_length)
-
+    names = [*rank.keys()]
+    short_names = shorten_names_for_display(names, song_length)
     levels = make_levels(names)
 
     # Create figure and plot a stem plot with the date
@@ -47,9 +47,11 @@ def graph_songs_percentile(rank, graph_title, song_length=20, x=30, y=15):
     ax.plot(
         percentile, np.zeros_like(percentile), "-o", color="k", markerfacecolor="w"
     )  # Baseline and markers on it.
+    colors = create_box_colors(names)
 
+    i = 0
     # annotate lines
-    for d, l, r in zip(percentile, levels, names):
+    for d, l, r in zip(percentile, levels, short_names):
         ax.annotate(
             r,
             xy=(d, l),
@@ -58,7 +60,9 @@ def graph_songs_percentile(rank, graph_title, song_length=20, x=30, y=15):
             horizontalalignment="right",
             verticalalignment="bottom" if l > 0 else "top",
             fontsize=12,
+            bbox=dict(boxstyle="round,pad=0.2", fc=colors[i], alpha=0.5),
         )
+        i += 1
 
     plt.setp(ax.get_xticklabels(), rotation=30, fontsize=15, ha="right")
 
@@ -72,41 +76,17 @@ def graph_songs_percentile(rank, graph_title, song_length=20, x=30, y=15):
     return plt.show()
 
 
-def make_boxplot_songs(rank, graph_title):
+def make_boxplot_songs(
+    rank, graph_title, x_label="Songs", y_label="Percentiles", x=10, y=6
+):
     # rank is dictionary with just the songs to rank
     "This is a whole mess, i need to edit it to take a dictionary as a parameter - Kelsey"
-    random_dists = [*rank.keys()]
+    names = [*rank.keys()]
     percentile = [*rank.values()]
-
-    N = 500
-
-    Lush_data = [0.34, 0.56, 0.89, 0.45, 0.28, 0.40]
-    rfsncb = [0.78, 0.54, 0.23, 0.68]
-    bmamc = [0.34, 0.56, 0.89, 0.45, 0.28, 0.40]
-    p2 = [0.89, 0.45, 0.28, 0.40, 0.78, 0.54]
-    btc = [0.76, 0.45, 0.3, 0.78, 0.54]
-
-    # norm = np.random.normal(1, 1, N)
-    # logn = np.random.lognormal(1, 1, N)
-    # expo = np.random.exponential(1, N)
-    # gumb = np.random.gumbel(6, 4, N)
-    # tria = np.random.triangular(2, 9, 11, N)
-
-    # Generate some random indices that we'll use to resample the original data
-    # arrays. For code brevity, just use the same random indices for each array
-    # bootstrap_indices = np.random.randint(0, N, N)
-    # data = [
-    #     norm, norm[bootstrap_indices],
-    #     logn, logn[bootstrap_indices],
-    #     expo, expo[bootstrap_indices],
-    #     gumb, gumb[bootstrap_indices],
-    #     tria, tria[bootstrap_indices],
-    # ]
 
     data = percentile
 
-    fig, ax1 = plt.subplots(figsize=(10, 6))
-    fig.canvas.manager.set_window_title("Mitski Songs By Album and Others")
+    fig, ax1 = plt.subplots(figsize=(x, y))
     fig.subplots_adjust(left=0.075, right=0.95, top=0.9, bottom=0.25)
 
     bp = ax1.boxplot(data, notch=False, sym="+", vert=True, whis=1.5)
@@ -114,19 +94,17 @@ def make_boxplot_songs(rank, graph_title):
     plt.setp(bp["whiskers"], color="black")
     plt.setp(bp["fliers"], color="red", marker="+")
 
-    # Add a horizontal grid to the plot, but make it very light in color
-    # so we can use it for reading data values but not be distracting
     ax1.yaxis.grid(True, linestyle="-", which="major", color="lightgrey", alpha=0.5)
 
     ax1.set(
         axisbelow=True,  # Hide the grid behind plot objects
-        title="Comparison of IID Bootstrap Resampling Across Five Distributions",
-        xlabel="Distribution",
-        ylabel="Value",
+        title=graph_title,
+        xlabel=x_label,
+        ylabel=y_label,
     )
 
     # Now fill the boxes with desired colors
-    box_colors = ["darkolivegreen", "royalblue", "slategrey", "lightgreen", "grey"]
+    box_colors = create_box_colors(names)
     num_boxes = len(data)
     medians = np.empty(num_boxes)
     for i in range(num_boxes):
@@ -150,6 +128,7 @@ def make_boxplot_songs(rank, graph_title):
         medians[i] = median_y[0]
         # Finally, overplot the sample averages, with horizontal alignment
         # in the center of each box
+
         ax1.plot(
             np.average(med.get_xdata()),
             np.average(data[i]),
@@ -163,7 +142,7 @@ def make_boxplot_songs(rank, graph_title):
     top = 1
     bottom = 0
     ax1.set_ylim(bottom, top)
-    ax1.set_xticklabels(np.repeat(random_dists, 1), rotation=45, fontsize=8)
+    ax1.set_xticklabels(np.repeat(names, 1), rotation=90, fontsize=8)
 
     # Due to the Y-axis scale being different across samples, it can be
     # hard to compare differences in medians across the samples. Add upper
@@ -185,16 +164,47 @@ def make_boxplot_songs(rank, graph_title):
             color=box_colors[k],
         )
 
-    # Finally, add a basic legend
-    # fig.text(0.80, 0.08, f'{N} Random Numbers',
-    #          backgroundcolor=box_colors[0], color='black', weight='roman',
-    #          size='x-small')
-    # fig.text(0.80, 0.045, 'IID Bootstrap Resample',
-    #          backgroundcolor=box_colors[1],
-    #          color='white', weight='roman', size='x-small')
-    # fig.text(0.80, 0.015, '*', color='white', backgroundcolor='silver',
-    #          weight='roman', size='medium')
-    # fig.text(0.815, 0.013, ' Average Value', color='black', weight='roman',
-    #          size='x-small')
-
     plt.show()
+
+
+from data_collector import *
+
+
+def create_box_colors(data):
+    colors = []
+    lh, btc, p2, bmamc, rfsncib, lush, sita, punisher, boygenius = get_all_albums()
+    for i in data:
+        if i in lh:
+            colors.append("darkred")
+        elif i in btc:
+            colors.append("silver")
+        elif i in p2:
+            colors.append("yellowgreen")
+        elif i in bmamc:
+            colors.append("slategrey")
+        elif i in rfsncib:
+            colors.append("teal")
+        elif i in lush:
+            colors.append("darkolivegreen")
+        elif i in sita:
+            colors.append("paleturquoise")
+        elif i in punisher:
+            colors.append("mediumblue")
+        elif i in boygenius:
+            colors.append("dimgrey")
+        else:
+            colors.append("gold")
+    return colors
+
+
+# LEGEND EXAMPLE CODE
+# fig.text(0.80, 0.08, f'{N} Random Numbers',
+#          backgroundcolor=box_colors[0], color='black', weight='roman',
+#          size='x-small')
+# fig.text(0.80, 0.045, 'IID Bootstrap Resample',
+#          backgroundcolor=box_colors[1],
+#          color='white', weight='roman', size='x-small')
+# fig.text(0.80, 0.015, '*', color='white', backgroundcolor='silver',
+#          weight='roman', size='medium')
+# fig.text(0.815, 0.013, ' Average Value', color='black', weight='roman',
+#          size='x-small')

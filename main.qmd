@@ -35,6 +35,16 @@ This returns a list of which indexes are ambiguous, meaning the combined correla
 The second list is the playlists that are in reversed order (least sad at the top), determined by the fact that they have a negative correlation with the normal order playlist and a positive correlation with reverse order playlist. 
 
 ```{python}
+mitski_temp = mitski_all
+phoebe_temp = phoebe_all
+```
+
+```{python}
+import data_helpers
+ambiguous_indexes, reversed_indexes = data_helpers.find_anomalies(mitski_all, 0, 2)
+```
+
+```{python}
 import pandas as pd
 mitski_df = pd.DataFrame(mitski_all)
 
@@ -79,24 +89,54 @@ phoebe_df
 ```
 
 ```{python}
-# csv
+mitski_df.to_csv("mitski_data.csv")
+phoebe_df.to_csv("phoebe_data.csv")
 ```
 
 ```{python}
 from data_helpers import *
-import matplotlib.pyplot as plt
-import numpy as np
-from matplotlib.patches import Polygon
 from annotations import *
+from data_collector import *
 
-phoebe_rank = get_avg_ranking(phoebe_df)
+# mitski_rank = get_avg_ranking(mitski_df)
+# graph_songs_percentile(mitski_rank, "Mitski Percentiles", 30)
 
-percents = [*phoebe_rank.values()]
-titles = [*phoebe_rank.keys()]
-print(phoebe_rank)
+# phoebe_rank = get_avg_ranking(phoebe_df)
+# graph_songs_percentile(phoebe_rank, "Phoebe Percentiles", 30)
 
-graph_songs_percentile(phoebe_rank, "phoebe")
+# print(len(mitski_rank))
+mitski_all = get_all_ranking(mitski_df)
+print(find_least_controversial(mitski_all, 10))
+lh, btc, p2, bmamc, rfsncib, lush, sita, punisher, boygenius = get_all_albums()
 
-make_boxplot()
+mitski_rank = get_avg_ranking(mitski_df)
+```
+
+```{python}
+from annotations import *
+from itertools import islice
+
+
+phoebe_rank_boxplot = get_all_ranking(phoebe_df, 5)
+ 
+
+
+keys, values = zip(*phoebe_rank_boxplot.items())
+half = len(phoebe_rank_boxplot)//2
+res1 = dict(zip(keys[:half], values[:half]))
+res2 = dict(zip(keys[half:], values[half:]))
+
+# make_boxplot_songs(phoebe_rank_boxplot, "All Phoebe Songs", )
+
+bmamc1 = make_dict_one_album(bmamc, mitski_all)
+
+make_boxplot_songs(bmamc1, "Puberty 2")
+
+graph_songs_percentile(mitski_rank, "mitski")
+```
+
+```{python}
+p2_songs = [*puberty2.keys()]
+print(create_box_colors(p2_songs))
 ```
 
