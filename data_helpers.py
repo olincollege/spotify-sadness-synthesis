@@ -1,4 +1,6 @@
 import numpy as np
+from scipy import stats
+import pandas as pd
 
 
 def make_row_list(row, df):
@@ -269,9 +271,19 @@ def make_dict_one_album(album, all_songs):
 #     return
 
 
-def find_anomalies(playlists, forward_i, backward_i):
-    from scipy import stats
-    import pandas as pd
+def find_anomalies(playlists, forward_i, backward_i, threshold=0.5):
+    """
+    Finds playlists that are reversed ordered or appear to be unusually ordered.
+
+    Args:
+        playlists: a 2d list of songs, with each inner list being a playlist.
+        forward_i: number representing index of a playlist to be used as a model normal order playlist.
+        backward_i: number representing index of a playlist to be used as a model reverse order playlist.
+
+    Returns:
+        A list of numbers representing the indexes of the playlists that are in ambigious order,
+        and a list of numbers representing the indexes of the playlists that are reversed.
+    """
 
     df = pd.DataFrame(playlists)
 
@@ -305,9 +317,26 @@ def find_anomalies(playlists, forward_i, backward_i):
             list(merged[merged.index.notnull()]["curr_rank"]),
         )
 
-        if abs(rho) + abs(rho_back) < 0.3:
+        if abs(rho) + abs(rho_back) < threshold:
             ambiguous_indexes.append(row[0])
         elif rho < 0 and rho_back > 0:
             reversed_indexes.append(row[0])
 
     return ambiguous_indexes, reversed_indexes
+
+
+def reverse_rows(playlists, indexes):
+    """
+    Reverses the order of the playlists at the given indices.
+
+    Args:
+        playlists: a 2d list of songs, with each inner list being a playlist.
+        indexes: a list of numbers representing the indexes of playlists to be reversed.
+
+    Returns:
+        the modified playlist list
+    """
+    df = pd.DataFrame(playlists)
+    for i in indexes:
+        playlists[i] = list(reversed(df.loc[i].dropna()))
+    return playlists
