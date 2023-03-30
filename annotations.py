@@ -18,8 +18,6 @@ def make_levels(names):
 
     Return: levels, a list of ints, representing the yaxis height
     for the annotations
-
-
     """
 
     # create equal spacing of levels so song names overlap less
@@ -38,6 +36,7 @@ def make_levels(names):
 
 
 def shorten_names_for_display(names, length=20):
+    """ """
     shortened = []
     for i in names:
         if len(i) > length:
