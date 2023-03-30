@@ -22,21 +22,6 @@ mitski_all = data_collector.get_all_playlists("mitski.txt")
 phoebe_all = data_collector.get_all_playlists("phoebe.txt")
 ```
 
-
-```{python}
-mitski_temp = mitski_all
-phoebe_temp = phoebe_all
-```
-
-```{python}
-mitski_all = mitski_temp
-```
-
-```{python}
-import data_helpers
-ambiguous_indexes, reversed_indexes = data_helpers.find_anomalies(mitski_all, 0, 2)
-```
-
 ```{python}
 mitski_temp = mitski_all
 phoebe_temp = phoebe_all
@@ -82,8 +67,8 @@ phoebe_df
 ```
 
 ```{python}
-mitski_df.to_csv("mitski_data.csv")
-phoebe_df.to_csv("phoebe_data.csv")
+# mitski_df.to_csv("mitski_data.csv")
+# phoebe_df.to_csv("phoebe_data.csv")
 ```
 
 ```{python}
@@ -91,10 +76,10 @@ from data_helpers import *
 from annotations import *
 from data_collector import *
 
-# mitski_rank = get_avg_ranking(mitski_df)
+# mitski_rank = get_avg_ranking(mitski_df, 5)
 # graph_songs_percentile(mitski_rank, "Mitski Percentiles", 30)
 
-# phoebe_rank = get_avg_ranking(phoebe_df)
+# phoebe_rank = get_avg_ranking(phoebe_df, 5)
 # graph_songs_percentile(phoebe_rank, "Phoebe Percentiles", 30)
 
 # print(len(mitski_rank))
@@ -102,7 +87,7 @@ mitski_all = get_all_ranking(mitski_df)
 print(find_least_controversial(mitski_all, 10))
 lh, btc, p2, bmamc, rfsncib, lush, sita, punisher, boygenius = get_all_albums()
 
-mitski_rank = get_avg_ranking(mitski_df)
+mitski_rank = get_avg_ranking(mitski_df, 5)
 ```
 
 ```{python}
@@ -112,24 +97,35 @@ from itertools import islice
 
 phoebe_rank_boxplot = get_all_ranking(phoebe_df, 5)
  
-
+phoebe_rank = get_avg_ranking(phoebe_df, 5)
 
 keys, values = zip(*phoebe_rank_boxplot.items())
 half = len(phoebe_rank_boxplot)//2
 res1 = dict(zip(keys[:half], values[:half]))
 res2 = dict(zip(keys[half:], values[half:]))
 
+
 # make_boxplot_songs(phoebe_rank_boxplot, "All Phoebe Songs", )
 
-bmamc1 = make_dict_one_album(bmamc, mitski_all)
+# bmamc1 = make_dict_one_album(bmamc, mitski_all)
 
-make_boxplot_songs(bmamc1, "Puberty 2")
+# make_boxplot_songs(bmamc1, "Puberty 2")
 
-graph_songs_percentile(mitski_rank, "mitski")
+stranger_in_the_alps = make_dict_one_album(sita, phoebe_rank)
+punisher1 = make_dict_one_album(punisher, phoebe_rank)
+be_the_cowboy = make_dict_one_album(btc, mitski_rank)
+puberty_2 = make_dict_one_album(p2, mitski_rank)
+
+graph_songs_percentile(stranger_in_the_alps, "Stranger in the alps", 40)
+graph_songs_percentile(punisher1, "Punisher", 40)
+graph_songs_percentile(be_the_cowboy, "Be The Cowboy", 40)
+graph_songs_percentile(puberty_2, "Puberty 2", 40)
 ```
 
 ```{python}
 p2_songs = [*puberty2.keys()]
 print(create_box_colors(p2_songs))
+
+find_std_of_songs(mitski_rank)
 ```
 

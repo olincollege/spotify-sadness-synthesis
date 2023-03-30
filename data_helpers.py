@@ -1,12 +1,6 @@
 import numpy as np
 
 
-def get_ranking(song, playlist):
-    "takes a row(playlist) from the df and finds the ranking of a song, starting at 1, not 0"
-
-    pass
-
-
 def make_row_list(row, df):
     """
     converts a row of a data frame into a list
@@ -59,6 +53,19 @@ def find_percentile(song, playlist, dictionary):
 
 
 def find_avg_percent(dictionary):
+    """
+    Finds the average percentile of a song
+
+    Args: dictionaty: a dictionary
+    with song titles as values, and lists of percentiles as the
+    value. This function accesses the list of percenties and uses
+    each value in the list to calculate an average percentile,
+    which replaces the list as the value of a song title
+
+    Returns: dictionary, the dictionary after it's been edited to
+    hold the averages as the values, instead of lists of each
+    percentile
+    """
     for i in dictionary:
         all = sum(dictionary[i])
         length = len(dictionary[i])
@@ -68,7 +75,25 @@ def find_avg_percent(dictionary):
     return dictionary
 
 
-def get_all_ranking(df, num=5):
+def get_all_ranking(df, cutoff=5):
+    """
+    Gets the ranking in percentiles of every song in every playlist
+
+    Takes a data frame and converts rows(playlists) into lists,
+    then iterates through each list to find the percentile ranking
+    of each song on that list, then removes songs that appear in
+    less playlists than the cutoff number, cutoff
+
+    Args: df, a dataframe, each row representing a playlist with
+    songs in ranked order. cutoff: an int, representing the value to be
+    passed to the remove_songs function, aka the cut off number of
+    times a song appears in playlists in order to not be removed
+    from the dictionary for not having enough data points.
+
+    Returns: percent_dict, a dictionary containing song titles as keys
+    and lists of percentiles as the values.
+
+    """
     percent_dict = {}
     for row in df:
         playlist = make_row_list(row, df)
@@ -77,28 +102,77 @@ def get_all_ranking(df, num=5):
 
         if row == (len(df) - 1):
             break
-    percent_dict = remove_songs(percent_dict, num)
+    percent_dict = remove_songs(percent_dict, cutoff)
 
     return percent_dict
 
 
-def remove_songs(dictionary, num=5):
+def remove_songs(dictionary, cutoff=5):
+    """
+    Removes songs from a dictionary that appear less then num times
+
+    Args: dictionary, a dictionary of songs and their percentiles or
+    avg percentiles. cutoff, an int representing the cut off number of
+    playlists a song appears in.
+
+    Returns: removed_dict, a dictionary the same as 'dictionary',
+    but without songs that appeared in less playlists than the cutoff
+    number
+
+    """
     removed_dict = {}
     for i in dictionary:
-        if len(dictionary[i]) >= num:
+        if len(dictionary[i]) >= cutoff:
             removed_dict[i] = dictionary[i]
     return removed_dict
 
 
-def get_avg_ranking(df):
+def get_avg_ranking(df, cutoff):
+    """
+    Gets the average rank percentile of each song across each playlist
+
+    Uses get_all_ranking function to create a dictionaty with song title
+    keys and list of percentile values. Then uses remove_songs to
+    remove songs that appear less than the cutoff number. Then uses
+    avg_percentage to create dictionary with song title keys and avg
+    percentile values.
+
+    Args: df, a datafram of songs, where each row represents a playlist
+    in order. cutoff, an int representing the cut off number of
+    times a song appears in playlists in order to not be removed
+    from the dictionary
+
+    Returns: avg_percent, a dictionary of song title keys and avg
+    percentile values
+    """
 
     percent_dict = get_all_ranking(df)
-    percent_dict = remove_songs(percent_dict, 5)
+    percent_dict = remove_songs(percent_dict, cutoff)
     avg_percent = find_avg_percent(percent_dict)
     return avg_percent
 
 
 def find_most_controversial(dictionary, num):
+    """
+    Finds the songs with the largest standard deviations
+
+    Uses function find_stds_of_songs to get standard deviation of
+    each song based on the dictionary values, which are lists of
+    rank percentiles from each playlist the song appeared on
+
+    Args: dictionary, a dictionary with song title keys and list of
+    percentiles values. num, an int representing the number of most
+    controversial songs to return. if num = 5, this function will
+    return the top 5 most controversial songs.
+
+    Return: maxes, a dictionary of song title keys and
+    list of percentiles values, with only the num most controversial
+    songs in the dictionary.
+
+    Note: Most controversial is defined as having the highest
+    standard deviation
+
+    """
     maxes = {}
     stds_dict = find_std_of_songs(dictionary)
 
@@ -114,6 +188,25 @@ def find_most_controversial(dictionary, num):
 
 
 def find_least_controversial(dictionary, num):
+    """
+    Finds the songs with the largest standard deviations
+
+    Uses function find_stds_of_songs to get standard deviation of
+    each song based on the dictionary values, which are lists of
+    rank percentiles from each playlist the song appeared on
+
+    Args: dictionary, a dictionary with song title keys and list of
+    percentiles values. num, an int representing the number of least
+    controversial songs to return. if num = 5, this function will
+    return the top 5 least controversial songs.
+
+    Return: mins, a dictionary of song title keys and
+    list of percentiles values, with only the num least controversial
+    songs in the dictionary.
+
+    Note: least controversial is defined as having the lowest
+    standard deviation
+    """
     mins = {}
     stds_dict = find_std_of_songs(dictionary)
 
@@ -129,6 +222,18 @@ def find_least_controversial(dictionary, num):
 
 
 def find_std_of_songs(dictionary):
+    """
+    Finds the standard deviation rank percentiles for each song
+
+    uses numpy std function to calculate the standard deviations
+    of a list of percentiles, taken from dictionary
+
+    Args: dictionary, a dictionary of song title keys and list of
+    percentiles values
+
+    Return: stds, a dictionary with song title keys and standard
+    deviation values
+    """
     stds = {}
     for i in dictionary:
         stds[i] = np.std(dictionary[i])
@@ -137,6 +242,18 @@ def find_std_of_songs(dictionary):
 
 
 def make_dict_one_album(album, all_songs):
+    """
+    Creates a dictionary with only songs from a given album
+
+    Args: album, a list of song titles from an album,
+    all_songs, a dictionary with song title keys, and either
+    avg percentile values, or list of percentiles values
+
+    Return: album_dict, a dictionary with the same key and value
+    types as all_songs, but only for songs in album
+
+
+    """
     album_dict = {}
     for i in all_songs:
         if i in album:
@@ -187,7 +304,7 @@ def find_anomalies(playlists, forward_i, backward_i):
             list(merged[merged.index.notnull()]["back_rank"]),
             list(merged[merged.index.notnull()]["curr_rank"]),
         )
-        
+
         if abs(rho) + abs(rho_back) < 0.3:
             ambiguous_indexes.append(row[0])
         elif rho < 0 and rho_back > 0:

@@ -1,3 +1,9 @@
 *.ipynb
 secrets.txt
 .cache
+__pycache__/annotations.cpython-39.pyc
+__pycache__/data_collector.cpython-39.pyc
+__pycache__/data_collector.cpython-39.pyc
+__pycache__/data_helpers.cpython-39.pyc
+__pycache__/data_collector.cpython-39.pyc
+*.pyc

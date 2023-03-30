@@ -5,6 +5,23 @@ from matplotlib.patches import Polygon
 
 
 def make_levels(names):
+    """
+    Create levels for the graph_songs_percentile function
+
+    Levels are essentially the y axis height of an annotation,
+    we need to create the levels slightly dispersed so that
+    annotations wont overlap. This function is made to be a helper
+    function for graph_songs_percentile
+
+    Args: names, a list of song names that are going to be used
+    as annotations in graph_songs_percentile
+
+    Return: levels, a list of ints, representing the yaxis height
+    for the annotations
+
+
+    """
+
     # create equal spacing of levels so song names overlap less
     levels = list(range(int(-len(names) / 2), int(len(names) / 2)))
     # add an extra level if the amount of songs is odd (because level
@@ -59,12 +76,12 @@ def graph_songs_percentile(rank, graph_title, song_length=20, x=30, y=15):
             textcoords="offset points",
             horizontalalignment="right",
             verticalalignment="bottom" if l > 0 else "top",
-            fontsize=12,
+            fontsize=17,
             bbox=dict(boxstyle="round,pad=0.2", fc=colors[i], alpha=0.5),
         )
         i += 1
 
-    plt.setp(ax.get_xticklabels(), rotation=30, fontsize=15, ha="right")
+    plt.setp(ax.get_xticklabels(), rotation=30, fontsize=17, ha="right")
 
     # remove y-axis and spines
     ax.yaxis.set_visible(False)
