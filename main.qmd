@@ -85,7 +85,7 @@ from data_collector import *
 # print(len(mitski_rank))
 mitski_all = get_all_ranking(mitski_df)
 print(find_least_controversial(mitski_all, 10))
-lh, btc, p2, bmamc, rfsncib, lush, sita, punisher = get_all_albums()
+lh, btc, p2, bmamc, rfsncib, lush, sita, punisher, boygenius = get_all_albums()
 
 mitski_rank = get_avg_ranking(mitski_df)
 ```
@@ -104,10 +104,17 @@ half = len(phoebe_rank_boxplot)//2
 res1 = dict(zip(keys[:half], values[:half]))
 res2 = dict(zip(keys[half:], values[half:]))
 
-make_boxplot_songs(phoebe_rank_boxplot, "All Phoebe Songs", )
+# make_boxplot_songs(phoebe_rank_boxplot, "All Phoebe Songs", )
 
-puberty2 = make_dict_one_album(p2, mitski_all)
+bmamc1 = make_dict_one_album(bmamc, mitski_all)
 
-make_boxplot_songs(puberty2, "Puberty 2")
+make_boxplot_songs(bmamc1, "Puberty 2")
+
+graph_songs_percentile(mitski_rank, "mitski")
+```
+
+```{python}
+p2_songs = [*puberty2.keys()]
+print(create_box_colors(p2_songs))
 ```
 
