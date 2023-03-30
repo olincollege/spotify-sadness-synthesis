@@ -12,30 +12,27 @@ import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 ```
 
+Fetch data from the api.
+
 ```{python}
 import data_collector
 data_collector.login()
-```
-
-```{python}
 mitski_all = data_collector.get_all_playlists("mitski.txt")
 phoebe_all = data_collector.get_all_playlists("phoebe.txt")
 ```
 
-
-```{python}
-mitski_temp = mitski_all
-phoebe_temp = phoebe_all
-```
-
-```{python}
-mitski_all = mitski_temp
-```
+Then, we use the spearman correlation coefficient to compare the rankings of songs in each playlist with a "model" normal order and reverse order playlist. We decided these model playlists based on the number of likes (indicated that the ranking was fairly agreed upon), the number of songs in the playlist (if the playlist has all of the songs it can be more accurately compared to other playlists), and clear indication of which way the playlist was ordered. 
 
 ```{python}
 import data_helpers
 ambiguous_indexes, reversed_indexes = data_helpers.find_anomalies(mitski_all, 0, 2)
+print(ambiguous_indexes)
+print(reversed_indexes)
 ```
+
+This returns a list of which indexes are ambiguous, meaning the combined correlation with both direction of playlists is less than 0.5. Looking at these 3 playlists, one has only a small subsection of Mitski's music, one includes non-Mitski music, and one at glance has a somewhat atypical ranking. 
+
+The second list is the playlists that are in reversed order (least sad at the top), determined by the fact that they have a negative correlation with the normal order playlist and a positive correlation with reverse order playlist. 
 
 ```{python}
 import pandas as pd
@@ -51,8 +48,19 @@ mitski_df = pd.DataFrame(mitski_all)
 mitski_df
 ```
 
+This process is repeated with the Phoebe Bridgers playlists. 
+
 ```{python}
 ambiguous_indexes, reversed_indexes = data_helpers.find_anomalies(phoebe_all, 6, 2)
+print(ambiguous_indexes)
+print(reversed_indexes)
+```
+
+We discovered a high normal of playlists marked at "ambiguous". This is likely due to the fact that Phoebe has more songs, and so many songs include a much more limited portion of her music. In addition, Phoebe has a lot of music she creates with other artists, and some playlists include this while others do not. 
+Therefore, we reran with a more specific threshold for ambiguity of 0.2. 
+
+```{python}
+ambiguous_indexes, reversed_indexes = data_helpers.find_anomalies(phoebe_all, 6, 2, 0.2)
 print(ambiguous_indexes)
 print(reversed_indexes)
 ```
@@ -61,14 +69,17 @@ print(reversed_indexes)
 import pandas as pd
 phoebe_df = pd.DataFrame(mitski_all)
 
-for i in reversed_indexes:
-    phoebe_all[i] = list(reversed(phoebe_df.loc[i].dropna()))
+phoebe_all = data_helpers.reverse_rows(phoebe_all, reversed_indexes)
 
 for idx, element in enumerate(ambiguous_indexes):
     phoebe_all.pop(element- idx) # bcs indexes get moved when something is popped
 
 phoebe_df = pd.DataFrame(phoebe_all)
 phoebe_df
+```
+
+```{python}
+# csv
 ```
 
 ```{python}
@@ -84,7 +95,7 @@ percents = [*phoebe_rank.values()]
 titles = [*phoebe_rank.keys()]
 print(phoebe_rank)
 
-songs_percentile(phoebe_rank)
+graph_songs_percentile(phoebe_rank, "phoebe")
 
 make_boxplot()
 ```
