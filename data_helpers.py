@@ -182,6 +182,7 @@ def find_most_controversial(dictionary, num):
 
     """
     maxes = {}
+    new_dict = {}
     stds_dict = find_std_of_songs(dictionary)
 
     for _ in range(0, num):
@@ -190,7 +191,11 @@ def find_most_controversial(dictionary, num):
         ]
 
         del stds_dict[max(stds_dict, key=stds_dict.get)]
-    return maxes
+
+    for song in maxes:
+        new_dict[song] = dictionary[song]
+
+    return new_dict
 
 
 def find_least_controversial(dictionary, num):
@@ -214,6 +219,7 @@ def find_least_controversial(dictionary, num):
     standard deviation
     """
     mins = {}
+    new_dict = {}
     stds_dict = find_std_of_songs(dictionary)
 
     for _ in range(0, num):
@@ -222,7 +228,10 @@ def find_least_controversial(dictionary, num):
         ]
 
         del stds_dict[min(stds_dict, key=stds_dict.get)]
-    return mins
+    for song in mins:
+        new_dict[song] = dictionary[song]
+
+    return new_dict
 
 
 def find_std_of_songs(dictionary):
