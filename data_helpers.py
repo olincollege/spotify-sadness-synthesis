@@ -7,22 +7,6 @@ from scipy import stats
 import pandas as pd
 
 
-def make_row_list(row, data):
-    """
-    converts a row of a data frame into a list
-
-    Args:
-        row: an int, representing the row of the data frame to be
-        converted to a list.
-        data: the data frame containing the row to be
-        converted
-
-    Returns: row_list, the row of the data frame as a list
-    """
-    row_list = data.loc[row, :].values.flatten().tolist()
-    return row_list
-
-
 def find_percentile(song, playlist, dictionary):
     """
     Finds the percentile rank of a song in a single playlist
@@ -64,7 +48,7 @@ def find_avg_percent(dictionary):
     """
     Finds the average percentile of a song
 
-    Args: dictionaty: a dictionary
+    Args: dictionary: a dictionary
     with song titles as values, and lists of percentiles as the
     value. This function accesses the list of percenties and uses
     each value in the list to calculate an average percentile,
@@ -104,7 +88,7 @@ def get_all_ranking(data, cutoff=5):
     """
     percent_dict = {}
     for row in data:
-        playlist = make_row_list(row, data)
+        playlist = data.loc[row, :].values.flatten().tolist()
         for i in playlist:
             percent_dict = find_percentile(i, playlist, percent_dict)
 
@@ -154,7 +138,7 @@ def get_avg_ranking(data, cutoff):
     percentile values
     """
 
-    percent_dict = get_all_ranking(data)
+    percent_dict = get_all_ranking(data, cutoff)
     percent_dict = remove_songs(percent_dict, cutoff)
     avg_percent = find_avg_percent(percent_dict)
     return avg_percent

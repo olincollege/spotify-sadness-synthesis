@@ -1,7 +1,11 @@
-from data_helpers import *
+"""
+Functions related to plotting spotify data. 
+"""
+
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.patches import Polygon
+import data_collector
 
 
 def make_levels(names):
@@ -105,10 +109,10 @@ def make_boxplot_songs(
     fig, ax1 = plt.subplots(figsize=(x, y))
     fig.subplots_adjust(left=0.075, right=0.95, top=0.9, bottom=0.25)
 
-    bp = ax1.boxplot(data, notch=False, sym="+", vert=True, whis=1.5)
-    plt.setp(bp["boxes"], color="black")
-    plt.setp(bp["whiskers"], color="black")
-    plt.setp(bp["fliers"], color="red", marker="+")
+    boxplt = ax1.boxplot(data, notch=False, sym="+", vert=True, whis=1.5)
+    plt.setp(boxplt["boxes"], color="black")
+    plt.setp(boxplt["whiskers"], color="black")
+    plt.setp(boxplt["fliers"], color="red", marker="+")
 
     ax1.yaxis.grid(True, linestyle="-", which="major", color="lightgrey", alpha=0.5)
 
@@ -124,7 +128,7 @@ def make_boxplot_songs(
     num_boxes = len(data)
     medians = np.empty(num_boxes)
     for i in range(num_boxes):
-        box = bp["boxes"][i]
+        box = boxplt["boxes"][i]
         box_x = []
         box_y = []
         for j in range(5):
@@ -134,7 +138,7 @@ def make_boxplot_songs(
         # Alternate between Dark Khaki and Royal Blue
         ax1.add_patch(Polygon(box_coords, facecolor=box_colors[i]))
         # Now draw the median lines back over what we just filled in
-        med = bp["medians"][i]
+        med = boxplt["medians"][i]
         median_x = []
         median_y = []
         for j in range(2):
@@ -183,12 +187,19 @@ def make_boxplot_songs(
     plt.show()
 
 
-from data_collector import *
-
-
 def create_box_colors(data):
     colors = []
-    lh, btc, p2, bmamc, rfsncib, lush, sita, punisher, boygenius = get_all_albums()
+    (
+        lh,
+        btc,
+        p2,
+        bmamc,
+        rfsncib,
+        lush,
+        sita,
+        punisher,
+        boygenius,
+    ) = data_collector.get_all_albums()
     for i in data:
         if i in lh:
             colors.append("darkred")
