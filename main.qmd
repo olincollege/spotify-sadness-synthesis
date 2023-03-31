@@ -37,7 +37,11 @@ import pandas as pd
 from itertools import islice
 ```
 
-Using functions we created in data_collector.py, we fetched data from the API. The variables mitski_all_list and phoebe_all_list are both lists of lists. Each of the internal lists represents a playlist in order.
+Using functions we created in data_collector.py, we fetched data from the API. 
+
+First, it uses spotify api credentials to establish a connection with the spotify api, and create an object with the Spotipy library that can be used to interact with the api. 
+Then, it uses that object to fetch playlists with the urls given in mitski.txt and phoebe.txt, and put the names of songs in the playlists into lists. 
+The variables mitski_all_list and phoebe_all_list are both lists of lists. Each of the internal lists represents a playlist in order.
 
 We created data frames of the lists, and saved them to the files phoebe_data.csv and mitski_data.csv.
 
@@ -53,8 +57,6 @@ phoebe_df.to_csv("phoebe_data.csv")
 
 mitski_df = pd.DataFrame(mitski_all_list)
 mitski_df.to_csv("mitski_data.csv")
-
-
 ```
 
 #### Playlist Order
@@ -73,7 +75,7 @@ print("indexes of reverse ordered playlists:")
 print(reversed_indexes)
 ```
 
-Looking at the 3 ambiguosly ordered playlists from the Mitski playlists, one has only a small subsection of Mitski's music, one includes non-Mitski music, and one at glance has a somewhat atypical ranking. 
+Looking at the three ambiguously ordered playlists from the Mitski playlists, one has only a small subsection of Mitski's music, one includes non-Mitski music, and one at glance has a somewhat atypical ranking. 
 
 The second list is the playlists that are in reversed order (least sad at the top), determined by the fact that they have a negative correlation with the normal order playlist and a positive correlation with reverse order playlist. 
 
@@ -101,7 +103,7 @@ print("indexes of reverse ordered playlists:")
 print(reversed_indexes)
 ```
 
-In the Phoebe playlists, we discovered a high amount of playlists marked at "ambiguous". This is likely due to the fact that Phoebe has more songs, and so many songs include a much more limited portion of her music. In addition, Phoebe has a lot of music she creates with other artists, and some playlists include this while others do not. 
+In the Phoebe playlists, we discovered a high amount of playlists marked as "ambiguous". This is likely due to the fact that Phoebe has more songs, and so many songs include a much more limited portion of her music. In addition, Phoebe has a lot of music she creates with other artists, and some playlists include this while others do not. 
 Therefore, we reran with a more specific threshold for ambiguity of 0.2. 
 
 ```{python}
@@ -125,7 +127,6 @@ for idx, element in enumerate(ambiguous_indexes):
 phoebe_df = pd.DataFrame(phoebe_all_list)
 ```
 
-
 #### The Calculations
 
 Now that we had all playlists in order (to the best of our find_anomalies function's ability), we could begin on calculating the ultimate "sadness ranking" for both Mitski and Phoebe Bridgers.
@@ -140,11 +141,11 @@ from annotations import *
 
 Next, we calculated the ranking of each song in each playlist, and the average ranking of each song.
 
-In order to find the average ranking of an artist's songs, we needed to find the rank of each song in each playlist that that song appeared in. We created the function get_all_ranking to take a data frame of playlists, and find the rank (as a percentile) of each song for each playlist, then return the song titiles, along with a list of each percentile rank for each song, as a dictionary.
+In order to find the average ranking of an artist's songs, we needed to find the rank of each song in each playlist that that song appeared in. We created the function get_all_ranking to take a data frame of playlists, and find the rank (as a percentile) of each song for each playlist, then return the song tiles, along with a list of each percentile rank for each song, as a dictionary.
 
 We also created the function get_avg_ranking, which follows the same process as get_all_ranking, except it takes each song's list of percentiles, and finds the average of those percentiles.
 
-In order to eliminate bias from our data, both get_avg_ranking and get_all_ranking remove any songs that appear on less than a certain number of playlists. This is our cutoff number, which we have arbitrarily choosen as 5.
+In order to eliminate bias from our data, both get_avg_ranking and get_all_ranking remove any songs that appear on less than a certain number of playlists. This is our cutoff number, which we have arbitrarily chosen as 5.
 
 ```{python}
 #| vscode: {languageId: python}
@@ -158,7 +159,7 @@ phoebe_avg = get_avg_ranking(phoebe_df, cutoff)
 
 #### Visualization
 
-With the average ranking for each artist calculated, our next step was to produce visual to help us understand our results. 
+With the average ranking for each artist calculated, our next step was to produce visuals to help us understand our results. 
 
 ##### Average Ranking Graphs
 
@@ -168,7 +169,7 @@ In order to make visuals with only songs from a specific album, we created the f
 
 ##### Most Controversial Songs
 	
-These graphs would answer our initial question of which songs by Mitski and Phoebe are widely accepted as the saddest. To better understand the controversy surrounding the rankings that our graphs would showing us, we next chose to visualize which songs’ rankings were the most and the least controversial. For the purposes of our project, we define controversial songs as those for which opinions on the correct "sadness ranking" were the most divided. We determined this by looking at the difference in rankings each song received across all the playlists. We calculated the standard deviations of the percentiles from each playlist for each song. We considered songs with the highest standard deviation to be the most controversial, and the songs with the lowest standard deviation to be the least. We would visualize the 10 most and least controversial songs by each artist using box and whisker plots to show the distribution of their rankings.
+These graphs would answer our initial question of which songs by Mitski and Phoebe are widely accepted as the saddest. To better understand the controversy surrounding the rankings that our graphs were showing us, we next chose to visualize which songs’ rankings were the most and the least controversial. For the purposes of our project, we define controversial songs as those for which opinions on the correct "sadness ranking" were the most divided. We determined this by looking at the difference in rankings each song received across all the playlists. We calculated the standard deviations of the percentiles from each playlist for each song. We considered songs with the highest standard deviation to be the most controversial, and the songs with the lowest standard deviation to be the least. We would visualize the 10 most and least controversial songs by each artist using box and whisker plots to show the distribution of their rankings.
 
 ```{python}
 #| vscode: {languageId: python}
@@ -179,7 +180,6 @@ mitski_least_cont = find_least_controversial(mitski_all, 10)
 phoebe_least_cont = find_least_controversial(phoebe_all, 10)
 
 lh, btc, p2, bmamc, rfsncib, lush, sita, punisher, boygenius = get_all_albums()
-
 ```
 
 ### Results
@@ -267,5 +267,5 @@ Our methodology was not perfect, and there are some limitations we must address:
 
 2. Certain songs from both Phoebe Bridgers' and Mitski's discographies have multiple versions/recording of the same songs. We choose to include these songs as separate songs with their own rankings, because we observed that different versions of the same song often had notably different rankings on the same playlist. However, because some users only included one version of each song on their playlists, these alternate versions have less data about them, so their average rankings are less reliable.
 
-3. In choosing playlists for our data set, we looked for playlists ranking pheobe bridgers and mitski songs by sadness, but there was a lot of variety in titles, that we felt expressed the same purpose of the playlist. For example, "mitski ranked by cryability" was included in our playlists.
+3. In choosing playlists for our data set, we looked for playlists ranking Phoebe Bridgers and Mitski songs by sadness, but there was a lot of variety in titles, that we felt expressed the same purpose of the playlist. For example, "mitski ranked by cryability" was included in our playlists.
 
